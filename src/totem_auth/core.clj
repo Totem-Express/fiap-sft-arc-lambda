@@ -48,17 +48,16 @@
    :body jwt})
 
 (defn handle-event [event]
-  (println event)
-  (if-let [user (find-user-by-cpf (get event :cpf))]
+  (if-let [user (some-> event :cpf find-user-by-cpf)]
     (->> user
          sign-jwt
          handle-success)
     handle-error))
 
 (defn extract-request-body [request]
-  (-> request
-      :body
-      (json/read-str :key-fn clojure.core/keyword)))
+  (some-> request
+          :body
+          (json/read-str :key-fn clojure.core/keyword)))
 
 ;; This will be called from AWS Lambda
 (defn -handleRequest [this is os context]
@@ -76,4 +75,3 @@
   (->> (io/resource filename)
        (io/input-stream)
        (io/reader)))
-
