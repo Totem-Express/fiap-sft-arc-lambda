@@ -1,6 +1,6 @@
 (defproject totem-auth "1.0"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Lambda de autenticação para o projeto da pós graduação em Arquitetura de Software na FIAP"
+  :url "https://postech.fiap.com.br/"
   :dependencies [;; Clojure
                  [org.clojure/clojure "1.11.1"]
                  [org.clojure/data.json "2.5.0"]

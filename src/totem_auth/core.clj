@@ -15,7 +15,7 @@
 
 ;; Database
 (def database-property
-  {:jdbcUrl (get-env "DB_URL" "jdbc:mysql://172.17.0.1:3307/totemexpress")
+  {:jdbcUrl (get-env "DB_URL" "jdbc:mysql://localhost:3306/totemexpress")
    :user (get-env "DB_USER" "totemexpress")
    :password (get-env "DB_PASSWORD" "secret")})
 
@@ -31,7 +31,7 @@
 
 ;; JWT
 (def issuer "totem-express-auth")
-(def secret "very-s3cr3t")
+(def secret (get-env "AUTH_SECRET" "very-s3cr3t"))
 (def algorithm (Algorithm/HMAC256 secret))
 
 (defn sign-jwt [{:keys [id name]}]
@@ -60,9 +60,10 @@
           (json/read-str :key-fn clojure.core/keyword)))
 
 ;; This will be called from AWS Lambda
-(defn -handleRequest [this is os context]
-  (let [w (io/writer os)]
-    (-> (json/read (io/reader is) :key-fn clojure.core/keyword)
+;; The parameters is <this, input-stream, output-stream, context>
+(defn -handleRequest [_ input-stream output-stream context]
+  (let [w (io/writer output-stream)]
+    (-> (json/read (io/reader input-stream) :key-fn clojure.core/keyword)
         (extract-request-body)
         (handle-event)
         (json/write w))
@@ -72,6 +73,13 @@
 (defn create-input-stream
   "Create a input stream to test lambda"
   [filename]
-  (->> (io/resource filename)
-       (io/input-stream)
-       (io/reader)))
+  (let [input-stream (->> (io/resource filename)
+                          (io/input-stream)
+                          (io/reader))
+        output-stream (->> (io/file "resources/output.json")
+                           (io/output-stream))]
+    (-handleRequest nil input-stream output-stream nil)))
+
+(comment
+  (create-input-stream "input.json")
+  (io/delete-file "resources/output.json"))
