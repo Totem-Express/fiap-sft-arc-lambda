@@ -1,0 +1,45 @@
+name: "Pipeline do Lambda"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lambda-auth:
+    name: "Lambda Auth"
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@13.0
+        with:
+          cli: 1.11.1              # Clojure CLI based on tools.deps
+          lein: 2.11.2                  # Leiningen
+          
+      - name: Cache clojure dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            ~/.deps.clj
+          key: cljdeps-${{ hashFiles('deps.edn') }}
+          # key: cljdeps-${{ hashFiles('deps.edn', 'bb.edn') }}
+          # key: cljdeps-${{ hashFiles('project.clj') }}
+          # key: cljdeps-${{ hashFiles('build.boot') }}
+          restore-keys: cljdeps-
+
+      - name: Execute tests
+        run: lein test
