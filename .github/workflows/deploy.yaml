@@ -42,4 +42,20 @@ jobs:
           restore-keys: cljdeps-
 
       - name: Execute tests
+        id: tests
         run: lein test
+
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy lambda
+        if: steps.tests.conclusion == 'success'
+        run: |
+          lein uberjar
+          aws lambda update-function-code --function-name="AuthHandler" --zip-file="./target/uberjar/totem-auth-1.0-standalone.jar"
+        
