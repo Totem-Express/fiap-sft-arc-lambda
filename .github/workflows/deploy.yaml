@@ -57,5 +57,5 @@ jobs:
         if: steps.tests.conclusion == 'success'
         run: |
           lein uberjar
-          aws lambda update-function-code --function-name="AuthHandler" --zip-file="./target/uberjar/totem-auth-1.0-standalone.jar"
+          aws lambda update-function-code --function-name="AuthHandler" --zip-file="fileb://target/uberjar/totem-auth-1.0-standalone.jar"
         
