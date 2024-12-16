@@ -45,7 +45,8 @@
 
 (defn handle-success [jwt]
   {:statusCode 200
-   :body jwt})
+   :headers {"Content-type" "application/json" "Access-Control-Allow-Origin" "http://localhost:5173"}
+   :body {:token jwt}})
 
 (defn handle-event [event]
   (if-let [user (some-> event :cpf find-user-by-cpf)]
@@ -55,6 +56,7 @@
     handle-error))
 
 (defn extract-request-body [request]
+  (println request)
   (some-> request
           :body
           (json/read-str :key-fn clojure.core/keyword)))
