@@ -45,7 +45,6 @@
 
 (defn handle-success [jwt]
   {:statusCode 200
-   :headers {"Content-type" "application/json" "Access-Control-Allow-Origin" "http://localhost:5173"}
    :body {:token jwt}})
 
 (defn handle-event [event]

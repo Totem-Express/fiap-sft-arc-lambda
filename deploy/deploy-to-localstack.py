@@ -17,7 +17,8 @@ def create_api_gateway():
         name='totem-lambda',
         endpointConfiguration= {
             'types': ['EDGE']
-        }
+        },
+        
     )
 
     return gateway['id']
@@ -65,6 +66,13 @@ def create_lambda():
 
 def create_integration(api_id, resource_id):
     lambda_uri = f"arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:000000000000:function:AuthHandler/invocations"
+
+    api_gateway_client.put_method(
+        restApiId=api_id,
+        resourceId=resource_id,
+        httpMethod='POST',
+        authorizationType='OPTIONS'
+    )
 
     api_gateway_client.put_method(
         restApiId=api_id,
