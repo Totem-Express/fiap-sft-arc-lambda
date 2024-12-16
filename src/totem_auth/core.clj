@@ -55,6 +55,7 @@
     handle-error))
 
 (defn extract-request-body [request]
+  (println request)
   (some-> request
           :body
           (json/read-str :key-fn clojure.core/keyword)))
